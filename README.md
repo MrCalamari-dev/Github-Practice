@@ -133,22 +133,138 @@ Hands-on Git sandbox. Work in this repo. Do the tasks in order. Each task: edit 
 
 ---
 
-## Task 5: Rebase
+## Task 5: Rebase (replay commits onto a new base)
 
-1. Switch to feature branch:
+Rebase takes the commits unique to your branch and replays them on top of another commit.
+It does not create a merge commit; it recreates each commit (new hashes) and leaves a
+straight, linear history. Use it to keep a feature branch current with `main` and to clean
+up local commits before sharing them.
+
+### Part A — Rebase a branch onto updated `main`
+
+1. Start from a clean state on `main`:
    ```
-   git switch feature
+   git switch main
+   git status
+   git log --oneline --graph --all
    ```
-2. Replay it on latest main:
+2. Create a demo branch from an older commit so it diverges from `main`:
+   ```
+   git switch -c rebase-demo 5734aa6
+   ```
+   (`5734aa6` is "add and divide"; `main` has since moved ahead.)
+3. Add two commits on the demo branch:
+   - Edit `app.py`, add:
+     ```python
+     def subtract(a, b):
+         return a - b
+     ```
+     then:
+     ```
+     git add app.py
+     git commit -m "add subtract"
+     ```
+   - Edit `app.py`, add:
+     ```python
+     def power(a, b):
+         return a ** b
+     ```
+     then:
+     ```
+     git add app.py
+     git commit -m "add power"
+     ```
+4. Inspect the fork:
+   ```
+   git log --oneline --graph --all
+   ```
+   `rebase-demo` sits two commits ahead of the old base while `main` went a different way.
+5. Replay the demo commits onto current `main`:
    ```
    git rebase main
    ```
-   Resolve any conflicts as in Task 4 (edit, `git add`, `git rebase --continue`).
-3. Interactive rebase last 3 commits:
+   Git rewinds to the common ancestor, then applies "add subtract" and "add power" on top
+   of `main`.
+6. Verify the result:
    ```
-   git rebase -i HEAD~3
+   git log --oneline --graph --all
    ```
-   Change `pick` to `squash`/`reword` to combine or rename commits.
+   The demo commits now sit directly on top of `main` with new hashes; no merge commit was
+   created. `app.py` contains both new functions plus everything from `main`.
+   ```
+   python3 test_app.py
+   ```
+
+If a commit conflicts with changes on `main`:
+- Git stops and prints `CONFLICT`. Run `git status` to see the file.
+- Open the file, resolve the `<<<<<<<` / `=======` / `>>>>>>>` markers, keep the intended code.
+- Stage: `git add app.py`
+- Continue: `git rebase --continue` (an editor opens for the commit message; save and close).
+- Abandon and restore the branch to before the rebase: `git rebase --abort`.
+- Skip the current commit entirely: `git rebase --skip`.
+
+### Part B — Interactive rebase (clean up local commits)
+
+Only use on commits that have not been pushed/shared.
+
+1. Make sure you are on `rebase-demo` (after Part A) and add one more commit:
+   - Edit `app.py`, add:
+     ```python
+     def clamp(x, lo, hi):
+         return max(lo, min(hi, x))
+     ```
+   - Then:
+     ```
+     git add app.py
+     git commit -m "add clamp"
+     ```
+2. Start an interactive rebase over the commits after `main`:
+   ```
+   git rebase -i main
+   ```
+   Your editor opens a todo list like:
+   ```
+   pick <hash> add subtract
+   pick <hash> add power
+   pick <hash> add clamp
+   ```
+3. Change commands to reshape history, for example combine the last two and rename the first:
+   ```
+   reword <hash> add subtract
+   squash <hash> add power
+   fixup  <hash> add clamp
+   ```
+   Commands:
+   - `pick` = keep the commit as-is
+   - `reword` = keep the commit, edit its message
+   - `edit` = pause to amend the commit
+   - `squash` = combine into the previous commit, edit the combined message
+   - `fixup` = combine into the previous commit, discard this message
+   - `drop` = remove the commit
+   - `exec <cmd>` = run a command between commits
+4. Save and close. Git applies the plan; editors may open for reword/squash messages.
+   Save each one.
+5. Verify:
+   ```
+   git log --oneline
+   git diff main..rebase-demo
+   ```
+   Fewer commits, but the final code is unchanged.
+
+### Part C — Transplant a range (`--onto`)
+
+Move commits that are on `oldbase..branch` onto a different base:
+```
+git rebase --onto <new-base> <old-base> <branch>
+```
+Example: take only the demo commits and replay them onto `origin/main` instead of local `main`.
+
+### Safety rules
+
+- Never rebase commits that have been pushed to a shared branch; rewriting public history
+  forces collaborators to recover.
+- Create a backup first if unsure: `git branch backup-rebase-demo`.
+- Recovery after a bad rebase: `git reflog`, then `git reset --hard <hash>` (see Task 8).
 
 ---
 

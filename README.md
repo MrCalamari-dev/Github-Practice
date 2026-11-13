@@ -150,9 +150,9 @@ up local commits before sharing them.
    ```
 2. Create a demo branch from an older commit so it diverges from `main`:
    ```
-   git switch -c rebase-demo 5734aa6
+   git switch -c rebase-demo <hash>
    ```
-   (`5734aa6` is "add and divide"; `main` has since moved ahead.)
+   (`<hash>` should be the hash of a past commit.)
 3. Add two commits on the demo branch:
    - Edit `app.py`, add:
      ```python

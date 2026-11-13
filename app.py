@@ -4,7 +4,6 @@ def add(a, b):
 def multiply(a, b):
     return a * b
 
-
 def largest(nums):
     if not nums:
         raise ValueError("empty")
@@ -13,3 +12,6 @@ def largest(nums):
         if n > m:
             m = n
     return m
+
+def divide(a, b):
+    return a / b

@@ -9,3 +9,12 @@ def largest(nums):
         if n > m:
             m = n
     return m
+
+def subtract(a, b):
+    return a - b
+
+def power(a, b):
+    return a ** b
+
+def clamp(x, lo, hi):
+    return max(lo, min(hi, x))

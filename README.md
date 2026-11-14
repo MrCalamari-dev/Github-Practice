@@ -251,13 +251,6 @@ Only use on commits that have not been pushed/shared.
    ```
    Fewer commits, but the final code is unchanged.
 
-### Part C — Transplant a range (`--onto`)
-
-Move commits that are on `oldbase..branch` onto a different base:
-```
-git rebase --onto <new-base> <old-base> <branch>
-```
-Example: take only the demo commits and replay them onto `origin/main` instead of local `main`.
 
 ### Safety rules
 

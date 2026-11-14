@@ -1,6 +1,7 @@
 def add(a, b):
     return a + b
 
+
 def largest(nums):
     if not nums:
         raise ValueError("empty")
@@ -10,13 +11,3 @@ def largest(nums):
             m = n
     return m
 
-def subtract(a, b):
-    return a - b
-
-def power(a, b):
-    return a ** b
-
-def clamp(x, lo, hi):
-    return max(lo, min(hi, x))
-
-#hello

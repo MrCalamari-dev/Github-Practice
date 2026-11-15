@@ -303,6 +303,25 @@ git reset --mixed HEAD~1  # keep changes unstaged (default)
 git reset --hard HEAD~1   # discard changes
 ```
 
+### Example: see the difference
+
+Start from a clean tree, then make one commit to undo:
+```
+echo "x = 1" >> app.py
+git add app.py
+git commit -m "add x"
+```
+
+Now run one reset and check `git status`:
+
+```
+git reset --soft HEAD~1   # status: "Changes to be committed" (edit stays staged)
+git reset --mixed HEAD~1  # status: "Changes not staged for commit" (edit stays unstaged)
+git reset --hard HEAD~1   # status: "nothing to commit, working tree clean" (edit gone)
+```
+
+Re-create the commit between tries, or recover with `git reflog` + `git reset --hard <hash>`.
+
 Recover after a bad reset/rebase:
 ```
 git reflog
